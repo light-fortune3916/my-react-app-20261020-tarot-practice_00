@@ -1,0 +1,58 @@
+:root {
+  --bg: #f7f5fb;
+  --surface: #ffffff;
+  --text: #2a2533;
+  --muted: #6b6375;
+  --border: #e3dfea;
+  --accent: #6b3fd1;
+  --accent-text: #ffffff;
+  --accent-soft: rgba(107, 63, 209, 0.12);
+  --notice: #8a5a00;
+  --notice-bg: #fff4dc;
+
+  font: 16px/1.6 system-ui, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light dark;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15131a;
+    --surface: #1f1c26;
+    --text: #ece8f3;
+    --muted: #a49cb2;
+    --border: #332e3d;
+    --accent: #a98bff;
+    --accent-text: #15131a;
+    --accent-soft: rgba(169, 139, 255, 0.16);
+    --notice: #ffcf70;
+    --notice-bg: #3a2f17;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+#root {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
