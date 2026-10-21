@@ -35,10 +35,30 @@ function Consultation({ consultation, onRetry }) {
   )
 }
 
-export default function ReadingScreen({ question, consultation, onRetryConsultation, onBack, onRedraw }) {
-  const [answer, setAnswer] = useState('')
+const MIN_ANSWER = 20
+
+export default function ReadingScreen({
+  question,
+  consultation,
+  onRetryConsultation,
+  attempt,
+  onAttemptChange,
+  scoring,
+  onSubmit,
+  onBack,
+  onRedraw,
+}) {
   const [showHint, setShowHint] = useState(false)
   const { theme, cards, fallback } = question
+  const { answer } = attempt
+  const length = answer.trim().length
+  const ready = consultation?.status === 'ready'
+  const busy = scoring.status === 'loading'
+
+  function toggleHint() {
+    if (!showHint) onAttemptChange({ ...attempt, hintUsed: true })
+    setShowHint((v) => !v)
+  }
 
   return (
     <div className="screen">
@@ -80,21 +100,31 @@ export default function ReadingScreen({ question, consultation, onRetryConsultat
         <h2>あなたの鑑定</h2>
         <textarea
           value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
+          onChange={(e) => onAttemptChange({ ...attempt, answer: e.target.value })}
+          maxLength={2000}
+          disabled={busy}
           placeholder="相談者に語りかけるつもりで書いてみましょう"
           rows={8}
         />
         <div className="row">
-          <button type="button" className="secondary" onClick={() => setShowHint((v) => !v)}>
-            {showHint ? 'ヒントを隠す' : 'ヒントを見る(キーワード)'}
+          <button type="button" className="secondary" onClick={toggleHint}>
+            {showHint ? 'ヒントを隠す' : 'ヒントを見る(-5点)'}
           </button>
           <button type="button" className="secondary" onClick={onRedraw}>
             別のお題を引く
           </button>
         </div>
-        {/* ステップ4で採点を実装 */}
-        <button type="button" className="primary" disabled>
-          採点する(準備中)
+        <p className="counter-text">
+          {length}文字{length < MIN_ANSWER && `(あと${MIN_ANSWER - length}文字以上)`}
+        </p>
+        {scoring.status === 'error' && <p className="notice">採点できませんでした。({scoring.reason})</p>}
+        <button
+          type="button"
+          className="primary"
+          onClick={onSubmit}
+          disabled={!ready || busy || length < MIN_ANSWER}
+        >
+          {busy ? '採点中…' : '採点する'}
         </button>
       </section>
     </div>

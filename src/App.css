@@ -211,3 +211,107 @@ textarea {
   font-size: 0.75rem;
   word-break: break-all;
 }
+
+.counter-text {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.score-panel {
+  align-items: center;
+  text-align: center;
+}
+
+.total-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.total-max {
+  margin-left: 4px;
+  color: var(--muted);
+}
+
+.rank {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.diff,
+.penalty {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.diff.up {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 6.5em 1fr 3.5em;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.bar-value {
+  text-align: right;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.body-text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.card-feedback-title {
+  font-weight: 600;
+}
+
+.mark {
+  margin-right: 6px;
+}
+
+.mark.ok {
+  color: var(--accent);
+}
+
+.mark.ng {
+  color: var(--notice);
+}
+
+details.panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.link.center {
+  align-self: center;
+}

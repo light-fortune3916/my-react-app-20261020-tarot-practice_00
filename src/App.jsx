@@ -1,20 +1,28 @@
 import { useRef, useState } from 'react'
 import HomeScreen from './screens/HomeScreen.jsx'
 import ReadingScreen from './screens/ReadingScreen.jsx'
+import ResultScreen from './screens/ResultScreen.jsx'
 import { drawQuestion } from './lib/draw.js'
-import { fetchConsultation } from './lib/api.js'
+import { fetchConsultation, scoreReading } from './lib/api.js'
 import { loadSettings, saveSettings } from './lib/settings.js'
 import './App.css'
 
-// 画面: home(設定とお題を引く)/ reading(鑑定)
-// 採点結果・履歴の画面は後のステップで追加する
+const EMPTY_ATTEMPT = { answer: '', hintUsed: false }
+
+// 画面: home(設定とお題を引く)/ reading(鑑定)/ result(採点結果)
+// 履歴の画面は後のステップで追加する
 export default function App() {
   const [settings, setSettings] = useState(loadSettings)
   const [screen, setScreen] = useState('home')
   const [question, setQuestion] = useState(null)
-  // consultation: { status: 'loading' | 'ready' | 'error', data }
+  // consultation: { status: 'loading' | 'ready' | 'error', data, reason }
   const [consultation, setConsultation] = useState(null)
   const [drawCount, setDrawCount] = useState(0)
+  const [attempt, setAttempt] = useState(EMPTY_ATTEMPT)
+  // scoring: { status: 'idle' | 'loading' | 'error', reason }
+  const [scoring, setScoring] = useState({ status: 'idle' })
+  const [result, setResult] = useState(null)
+  const [previousTotal, setPreviousTotal] = useState(null)
   const latestDraw = useRef(0)
 
   function updateSettings(next) {
@@ -39,8 +47,52 @@ export default function App() {
     latestDraw.current = drawId
     setQuestion(next)
     setDrawCount(drawId)
+    setAttempt(EMPTY_ATTEMPT)
+    setScoring({ status: 'idle' })
+    setResult(null)
+    setPreviousTotal(null)
     setScreen('reading')
     loadConsultation(next.theme, drawId)
+  }
+
+  async function submit() {
+    const drawId = drawCount
+    setScoring({ status: 'loading' })
+    try {
+      const data = await scoreReading({
+        consultation: consultation.data,
+        cards: question.cards,
+        answer: attempt.answer,
+        hintUsed: attempt.hintUsed,
+      })
+      if (latestDraw.current !== drawId) return
+      setResult(data)
+      setScoring({ status: 'idle' })
+      setScreen('result')
+    } catch (err) {
+      if (latestDraw.current === drawId) setScoring({ status: 'error', reason: err.message })
+    }
+  }
+
+  // 同じお題でもう一度。前回の鑑定文を残して書き直せるようにする
+  function retry() {
+    setPreviousTotal(result.total)
+    setAttempt((a) => ({ ...a, hintUsed: false }))
+    setScreen('reading')
+  }
+
+  if (screen === 'result' && result) {
+    return (
+      <ResultScreen
+        question={question}
+        result={result}
+        answer={attempt.answer}
+        previousTotal={previousTotal}
+        onRetry={retry}
+        onNext={draw}
+        onHome={() => setScreen('home')}
+      />
+    )
   }
 
   if (screen === 'reading' && question) {
@@ -50,6 +102,10 @@ export default function App() {
         question={question}
         consultation={consultation}
         onRetryConsultation={() => loadConsultation(question.theme, drawCount)}
+        attempt={attempt}
+        onAttemptChange={setAttempt}
+        scoring={scoring}
+        onSubmit={submit}
         onBack={() => setScreen('home')}
         onRedraw={draw}
       />
