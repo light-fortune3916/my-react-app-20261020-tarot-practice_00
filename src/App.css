@@ -315,3 +315,50 @@ details.panel summary {
 .link.center {
   align-self: center;
 }
+
+.home-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.history-item {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.history-score {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--accent);
+  min-width: 3.2em;
+}
+
+.history-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-theme {
+  font-weight: 600;
+}
+
+.history-cards,
+.history-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.history-date {
+  white-space: nowrap;
+}

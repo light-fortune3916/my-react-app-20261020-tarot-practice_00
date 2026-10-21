@@ -2,7 +2,7 @@ import { SUITS } from '../data/cards.js'
 import { CATEGORIES, DIFFICULTIES } from '../data/themes.js'
 import { PRESETS } from '../lib/settings.js'
 
-export default function HomeScreen({ settings, onChange, onDraw }) {
+export default function HomeScreen({ settings, onChange, onDraw, quota, onHistory }) {
   const { suits, allowReversed, difficulty, theme } = settings
   const category = CATEGORIES.find((c) => c.id === theme.categoryId)
 
@@ -29,6 +29,15 @@ export default function HomeScreen({ settings, onChange, onDraw }) {
       <button type="button" className="primary big" onClick={onDraw}>
         お題を引く
       </button>
+      <div className="home-meta">
+        <span>
+          {quota && !quota.premium && `今日の残り採点回数:${quota.remaining} / ${quota.limit}回`}
+          {quota?.premium && '有料会員(回数無制限)'}
+        </span>
+        <button type="button" className="link" onClick={onHistory}>
+          練習の履歴 →
+        </button>
+      </div>
 
       <section className="panel">
         <h2>テーマ</h2>

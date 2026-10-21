@@ -13,8 +13,18 @@ function rankOf(total) {
   return '修行中'
 }
 
-export default function ResultScreen({ question, result, answer, previousTotal, onRetry, onNext, onHome }) {
-  const { scores, total, penalty, good, improve, cardFeedback, modelReading } = result
+export default function ResultScreen({
+  question,
+  result,
+  answer,
+  consultation,
+  previousTotal,
+  onRetry,
+  onNext,
+  onHome,
+  homeLabel = '設定に戻る',
+}) {
+  const { scores, total, penalty, good, improve, cardFeedback = [], modelReading, remaining } = result
   const diff = previousTotal === null ? null : total - previousTotal
 
   return (
@@ -31,7 +41,19 @@ export default function ResultScreen({ question, result, answer, previousTotal, 
           </div>
         )}
         {penalty > 0 && <div className="penalty">ヒント使用 -{penalty}点</div>}
+        {typeof remaining === 'number' && <div className="penalty">今日の残り採点回数:{remaining}回</div>}
       </section>
+
+      {consultation && (
+        <section className="panel">
+          <h2>相談内容</h2>
+          <p className="client">
+            <strong>{consultation.name}</strong>({consultation.profile})
+          </p>
+          <blockquote className="consultation">{consultation.consultation}</blockquote>
+          <p className="client-question">知りたいこと:{consultation.question}</p>
+        </section>
+      )}
 
       <section className="panel">
         <h2>観点ごとの評価</h2>
@@ -83,14 +105,18 @@ export default function ResultScreen({ question, result, answer, previousTotal, 
       </details>
 
       <div className="actions">
-        <button type="button" className="primary" onClick={onNext}>
-          次のお題へ
-        </button>
-        <button type="button" className="secondary" onClick={onRetry}>
-          同じお題でもう一度
-        </button>
+        {onNext && (
+          <button type="button" className="primary" onClick={onNext}>
+            次のお題へ
+          </button>
+        )}
+        {onRetry && (
+          <button type="button" className="secondary" onClick={onRetry}>
+            同じお題でもう一度
+          </button>
+        )}
         <button type="button" className="link center" onClick={onHome}>
-          設定に戻る
+          {homeLabel}
         </button>
       </div>
     </div>

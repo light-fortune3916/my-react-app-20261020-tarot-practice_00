@@ -1,5 +1,6 @@
 import { CATEGORIES } from '../src/data/themes.js'
 import { generateJson } from './_lib/gemini.js'
+import { checkQuota, recordUsage } from './_lib/supabase.js'
 
 // お題(相談者と相談内容)を作る。
 // カードはブラウザ側でプログラムが引くので、ここでは相談内容だけを作る。
@@ -54,14 +55,18 @@ export default async function handler(req, res) {
     return
   }
 
-  const prompt = `次の条件で相談者を1人作ってください。
+  try {
+    const quota = await checkQuota(req, res, 'question')
+    if (!quota) return
+
+    const prompt = `次の条件で相談者を1人作ってください。
 - カテゴリー:${category.label}
 - サブテーマ:${sub}
 - 年代・性別:${pick(AGES)}${pick(GENDERS)}
 - 心の状態:${pick(MOODS)}`
 
-  try {
     const result = await generateJson({ system: SYSTEM, prompt, schema: SCHEMA })
+    await recordUsage(quota.user.id, 'question')
     res.status(200).json(result)
   } catch (err) {
     console.error(err)

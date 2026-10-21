@@ -1,6 +1,7 @@
 import { CARDS } from '../src/data/cards.js'
 import { POSITIONS } from '../src/data/themes.js'
 import { generateJson } from './_lib/gemini.js'
+import { admin, checkQuota, recordUsage } from './_lib/supabase.js'
 
 // 鑑定の採点。
 // カードの意味はアプリの辞書から渡し、AIの思い込みで採点がぶれないようにする。
@@ -81,7 +82,7 @@ export default async function handler(req, res) {
     return
   }
 
-  const { consultation, cards, answer, hintUsed } = req.body ?? {}
+  const { consultation, cards, answer, hintUsed, theme } = req.body ?? {}
 
   if (typeof answer !== 'string' || answer.trim().length < MIN_ANSWER) {
     res.status(400).json({ error: `鑑定は${MIN_ANSWER}文字以上で書いてください` })
@@ -130,6 +131,9 @@ ${answer}
 </answer>`
 
   try {
+    const quota = await checkQuota(req, res, 'score')
+    if (!quota) return
+
     const result = await generateJson({ system: SYSTEM, prompt, schema: SCHEMA, temperature: 0.2 })
     const scores = {
       card: clampScore(result.scores?.card),
@@ -139,14 +143,45 @@ ${answer}
     }
     const raw = scores.card + scores.story + scores.empathy + scores.delivery
     const penalty = hintUsed ? HINT_PENALTY : 0
+    const total = Math.max(0, raw - penalty)
+    const feedback = {
+      penalty,
+      good: text(result.good),
+      improve: text(result.improve),
+      cardFeedback: Array.isArray(result.cardFeedback) ? result.cardFeedback.slice(0, POSITIONS.length) : [],
+      modelReading: typeof result.modelReading === 'string' ? result.modelReading.slice(0, 2000) : '',
+    }
+
+    // 採点できたときだけ回数を数え、履歴に保存する
+    await recordUsage(quota.user.id, 'score')
+    const { error: saveError } = await admin()
+      .from('readings')
+      .insert({
+        user_id: quota.user.id,
+        category: text(theme?.category),
+        sub: text(theme?.sub),
+        cards: drawn.map((d) => ({ id: d.card.id, reversed: d.reversed, position: d.position })),
+        consultation: {
+          name: text(c.name),
+          profile: text(c.profile),
+          personality: text(c.personality),
+          consultation: text(c.consultation),
+          question: text(c.question),
+        },
+        answer,
+        hint_used: Boolean(hintUsed),
+        scores,
+        total,
+        feedback,
+      })
+    // 保存に失敗しても採点結果は返す(ログには残す)
+    if (saveError) console.error(saveError)
+
     res.status(200).json({
       scores,
-      penalty,
-      total: Math.max(0, raw - penalty),
-      good: result.good ?? '',
-      improve: result.improve ?? '',
-      cardFeedback: Array.isArray(result.cardFeedback) ? result.cardFeedback : [],
-      modelReading: result.modelReading ?? '',
+      total,
+      ...feedback,
+      remaining: Math.max(0, quota.limit - quota.used - 1),
     })
   } catch (err) {
     console.error(err)
