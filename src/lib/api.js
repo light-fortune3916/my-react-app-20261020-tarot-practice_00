@@ -6,6 +6,9 @@ export async function fetchConsultation(theme) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ category: theme.category, sub: theme.sub }),
   })
-  if (!res.ok) throw new Error(`status ${res.status}`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.reason || `status ${res.status}`)
+  }
   return res.json()
 }

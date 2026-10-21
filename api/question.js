@@ -65,6 +65,7 @@ export default async function handler(req, res) {
     res.status(200).json(result)
   } catch (err) {
     console.error(err)
-    res.status(500).json({ error: '相談文の作成に失敗しました' })
+    // 原因の切り分け用に短い理由を返す(APIキーそのものは含まれない)
+    res.status(500).json({ error: '相談文の作成に失敗しました', reason: String(err.message).slice(0, 200) })
   }
 }

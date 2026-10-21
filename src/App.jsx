@@ -28,8 +28,8 @@ export default function App() {
       const data = await fetchConsultation(theme)
       // 待っている間に別のお題を引いていたら、古い結果は捨てる
       if (latestDraw.current === drawId) setConsultation({ status: 'ready', data })
-    } catch {
-      if (latestDraw.current === drawId) setConsultation({ status: 'error', data: null })
+    } catch (err) {
+      if (latestDraw.current === drawId) setConsultation({ status: 'error', data: null, reason: err.message })
     }
   }
 

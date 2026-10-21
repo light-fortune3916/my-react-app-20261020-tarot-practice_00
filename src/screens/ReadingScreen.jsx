@@ -12,7 +12,10 @@ function Consultation({ consultation, onRetry }) {
   if (consultation.status === 'error') {
     return (
       <div className="row">
-        <p className="placeholder">相談文を作れませんでした。</p>
+        <p className="placeholder">
+          相談文を作れませんでした。
+          {consultation.reason && <span className="error-detail">({consultation.reason})</span>}
+        </p>
         <button type="button" className="secondary" onClick={onRetry}>
           もう一度試す
         </button>
