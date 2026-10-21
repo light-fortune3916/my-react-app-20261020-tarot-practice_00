@@ -362,3 +362,42 @@ details.panel summary {
 .history-date {
   white-space: nowrap;
 }
+
+.account-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.account-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.account-form input {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.secondary.small {
+  padding: 4px 12px;
+  font-size: 0.85rem;
+}
+
+.row {
+  align-items: center;
+}

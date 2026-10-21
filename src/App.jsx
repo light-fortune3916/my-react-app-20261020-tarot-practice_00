@@ -6,7 +6,7 @@ import HistoryScreen from './screens/HistoryScreen.jsx'
 import { drawQuestion } from './lib/draw.js'
 import { fetchConsultation, scoreReading } from './lib/api.js'
 import { loadSettings, saveSettings } from './lib/settings.js'
-import { fetchRemaining } from './lib/supabase.js'
+import { fetchRemaining, onAuthChange } from './lib/supabase.js'
 import './App.css'
 
 const EMPTY_ATTEMPT = { answer: '', hintUsed: false }
@@ -29,6 +29,8 @@ export default function App() {
   // 今日の残り採点回数: { premium, remaining, limit } | null
   const [quota, setQuota] = useState(null)
   const [historyItem, setHistoryItem] = useState(null)
+  // ログイン中のユーザー: { id, email, isAnonymous } | null
+  const [user, setUser] = useState(null)
 
   function refreshQuota() {
     fetchRemaining()
@@ -40,6 +42,15 @@ export default function App() {
   useEffect(() => {
     refreshQuota()
   }, [])
+
+  // メール登録の完了・ログイン・ログアウトを画面に反映する
+  useEffect(() => onAuthChange(setUser), [])
+
+  // 別のアカウントに切り替わったら残り回数を取り直す
+  const userId = user?.id
+  useEffect(() => {
+    if (userId) refreshQuota()
+  }, [userId])
 
   function updateSettings(next) {
     setSettings(next)
@@ -88,7 +99,10 @@ export default function App() {
       setScoring({ status: 'idle' })
       setScreen('result')
     } catch (err) {
-      if (latestDraw.current === drawId) setScoring({ status: 'error', reason: err.message })
+      if (latestDraw.current === drawId) {
+        setScoring({ status: 'error', reason: err.message, limitReached: err.limitReached })
+        if (err.limitReached) setQuota((q) => (q && !q.premium ? { ...q, remaining: 0 } : q))
+      }
     }
   }
 
@@ -149,6 +163,7 @@ export default function App() {
         attempt={attempt}
         onAttemptChange={setAttempt}
         scoring={scoring}
+        limitReached={Boolean(quota && !quota.premium && quota.remaining === 0)}
         onSubmit={submit}
         onBack={() => setScreen('home')}
         onRedraw={draw}
@@ -162,6 +177,8 @@ export default function App() {
       onChange={updateSettings}
       onDraw={draw}
       quota={quota}
+      user={user}
+      onSignedOut={refreshQuota}
       onHistory={() => setScreen('history')}
     />
   )

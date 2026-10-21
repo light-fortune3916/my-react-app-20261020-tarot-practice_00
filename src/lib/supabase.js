@@ -58,3 +58,43 @@ export async function fetchHistory() {
     cards: r.cards.map((c) => ({ ...c, card: CARDS.find((x) => x.id === c.id) })).filter((c) => c.card),
   }))
 }
+
+// ---- アカウント(メールでの本登録・ログイン) ----
+
+function redirectUrl() {
+  return window.location.origin
+}
+
+// ログイン状態の変化を受け取る。user: { id, email, isAnonymous } | null
+export function onAuthChange(callback) {
+  if (!supabase) return () => {}
+  const toUser = (session) =>
+    session?.user
+      ? { id: session.user.id, email: session.user.email ?? null, isAnonymous: Boolean(session.user.is_anonymous) }
+      : null
+  const { data } = supabase.auth.onAuthStateChange((_event, session) => callback(toUser(session)))
+  return () => data.subscription.unsubscribe()
+}
+
+// 登録なしで使っている人が、メールアドレスを登録する。
+// 今の仮ユーザーにメールを紐づけるので、これまでの履歴はそのまま引き継がれる。
+export async function registerEmail(email) {
+  await ensureSession()
+  const { error } = await supabase.auth.updateUser({ email }, { emailRedirectTo: redirectUrl() })
+  if (error) throw error
+}
+
+// 登録済みの人が、別の端末などでログインする(メールに届くリンクを押す)
+export async function loginWithEmail(email) {
+  if (!supabase) throw new Error('Supabase の設定がありません')
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false, emailRedirectTo: redirectUrl() },
+  })
+  if (error) throw error
+}
+
+export async function signOut() {
+  if (!supabase) return
+  await supabase.auth.signOut()
+}

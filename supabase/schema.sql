@@ -49,3 +49,10 @@ create policy "read own readings" on public.readings
 drop policy if exists "read own usage" on public.usage_events;
 create policy "read own usage" on public.usage_events
   for select using (auth.uid() = user_id);
+
+-- テーブルへのアクセス権(新しい Supabase では自動で付かないため明示する)
+-- 本人(ログイン中のユーザー)は読み取りだけ。行ごとの制限は上の policy で行う
+grant select on public.profiles, public.readings, public.usage_events to authenticated;
+-- サーバー(service_role)は読み書きできる
+grant select, insert, update, delete on public.profiles, public.readings, public.usage_events to service_role;
+grant usage, select on all sequences in schema public to service_role;

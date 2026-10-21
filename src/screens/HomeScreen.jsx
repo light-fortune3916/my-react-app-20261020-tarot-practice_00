@@ -1,8 +1,9 @@
 import { SUITS } from '../data/cards.js'
 import { CATEGORIES, DIFFICULTIES } from '../data/themes.js'
 import { PRESETS } from '../lib/settings.js'
+import AccountPanel from '../components/AccountPanel.jsx'
 
-export default function HomeScreen({ settings, onChange, onDraw, quota, onHistory }) {
+export default function HomeScreen({ settings, onChange, onDraw, quota, user, onSignedOut, onHistory }) {
   const { suits, allowReversed, difficulty, theme } = settings
   const category = CATEGORIES.find((c) => c.id === theme.categoryId)
 
@@ -38,6 +39,8 @@ export default function HomeScreen({ settings, onChange, onDraw, quota, onHistor
           練習の履歴 →
         </button>
       </div>
+
+      <AccountPanel user={user} onSignedOut={onSignedOut} />
 
       <section className="panel">
         <h2>テーマ</h2>

@@ -44,6 +44,7 @@ export default function ReadingScreen({
   attempt,
   onAttemptChange,
   scoring,
+  limitReached,
   onSubmit,
   onBack,
   onRedraw,
@@ -117,12 +118,16 @@ export default function ReadingScreen({
         <p className="counter-text">
           {length}文字{length < MIN_ANSWER && `(あと${MIN_ANSWER - length}文字以上)`}
         </p>
-        {scoring.status === 'error' && <p className="notice">採点できませんでした。({scoring.reason})</p>}
+        {limitReached ? (
+          <p className="notice">今日の採点回数を使い切りました。日本時間の0時に回数が戻ります。</p>
+        ) : (
+          scoring.status === 'error' && <p className="notice">採点できませんでした。({scoring.reason})</p>
+        )}
         <button
           type="button"
           className="primary"
           onClick={onSubmit}
-          disabled={!ready || busy || length < MIN_ANSWER}
+          disabled={!ready || busy || limitReached || length < MIN_ANSWER}
         >
           {busy ? '採点中…' : '採点する'}
         </button>
