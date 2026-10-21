@@ -5,7 +5,34 @@ function suitLabel(id) {
   return SUITS.find((s) => s.id === id).label
 }
 
-export default function ReadingScreen({ question, onBack, onRedraw }) {
+function Consultation({ consultation, onRetry }) {
+  if (!consultation || consultation.status === 'loading') {
+    return <p className="placeholder">相談者が来ました。お話を聞いています…</p>
+  }
+  if (consultation.status === 'error') {
+    return (
+      <div className="row">
+        <p className="placeholder">相談文を作れませんでした。</p>
+        <button type="button" className="secondary" onClick={onRetry}>
+          もう一度試す
+        </button>
+      </div>
+    )
+  }
+  const c = consultation.data
+  return (
+    <>
+      <p className="client">
+        <strong>{c.name}</strong>({c.profile})
+      </p>
+      <p className="client-mood">{c.personality}</p>
+      <blockquote className="consultation">{c.consultation}</blockquote>
+      <p className="client-question">知りたいこと:{c.question}</p>
+    </>
+  )
+}
+
+export default function ReadingScreen({ question, consultation, onRetryConsultation, onBack, onRedraw }) {
   const [answer, setAnswer] = useState('')
   const [showHint, setShowHint] = useState(false)
   const { theme, cards, fallback } = question
@@ -21,10 +48,7 @@ export default function ReadingScreen({ question, onBack, onRedraw }) {
         <p className="theme-tag">
           {theme.category} / {theme.sub}
         </p>
-        {/* ステップ3で Gemini が相談者プロフィールと悩みを生成する */}
-        <p className="placeholder">
-          (仮)「{theme.sub}」についての相談です。相談文は次のステップでAIが自動生成します。
-        </p>
+        <Consultation consultation={consultation} onRetry={onRetryConsultation} />
       </section>
 
       {fallback && (
