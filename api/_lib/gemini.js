@@ -2,7 +2,7 @@
 // Vercel の環境変数:
 //   GEMINI_API_KEY  … 必須
 //   GEMINI_MODEL    … 任意(未設定なら DEFAULT_MODEL)
-const DEFAULT_MODEL = 'gemini-2.5-flash'
+const DEFAULT_MODEL = 'gemini-3.8-flash'
 
 export async function generateJson({ system, prompt, schema, temperature = 1 }) {
   const key = process.env.GEMINI_API_KEY
