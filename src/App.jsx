@@ -11,6 +11,18 @@ import './App.css'
 
 const EMPTY_ATTEMPT = { answer: '', hintUsed: false }
 
+// Stripe の購入画面から戻ってきたときの結果(?checkout=success / cancel)を読み、URLから消す
+function readCheckoutResult() {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const value = params.get('checkout')
+    if (value) window.history.replaceState(null, '', window.location.pathname)
+    return value
+  } catch {
+    return null
+  }
+}
+
 // 画面: home(設定とお題を引く)/ reading(鑑定)/ result(採点結果)
 //       history(履歴一覧)/ historyDetail(過去の採点結果)
 export default function App() {
@@ -31,6 +43,7 @@ export default function App() {
   const [historyItem, setHistoryItem] = useState(null)
   // ログイン中のユーザー: { id, email, isAnonymous } | null
   const [user, setUser] = useState(null)
+  const [checkoutResult] = useState(readCheckoutResult)
 
   function refreshQuota() {
     fetchRemaining()
@@ -42,6 +55,13 @@ export default function App() {
   useEffect(() => {
     refreshQuota()
   }, [])
+
+  // 購入直後は、決済通知が届いて有料会員になるまで数秒かかることがあるので、何度か取り直す
+  useEffect(() => {
+    if (checkoutResult !== 'success') return
+    const timers = [2000, 5000, 10000].map((ms) => setTimeout(refreshQuota, ms))
+    return () => timers.forEach(clearTimeout)
+  }, [checkoutResult])
 
   // メール登録の完了・ログイン・ログアウトを画面に反映する
   useEffect(() => onAuthChange(setUser), [])
@@ -180,6 +200,7 @@ export default function App() {
       user={user}
       onSignedOut={refreshQuota}
       onHistory={() => setScreen('history')}
+      checkoutResult={checkoutResult}
     />
   )
 }

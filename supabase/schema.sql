@@ -56,3 +56,8 @@ grant select on public.profiles, public.readings, public.usage_events to authent
 -- サーバー(service_role)は読み書きできる
 grant select, insert, update, delete on public.profiles, public.readings, public.usage_events to service_role;
 grant usage, select on all sequences in schema public to service_role;
+
+-- ===== ステップ6:課金(Stripe)用の列 =====
+alter table public.profiles add column if not exists stripe_customer_id text unique;
+alter table public.profiles add column if not exists stripe_subscription_id text;
+alter table public.profiles add column if not exists subscription_status text;

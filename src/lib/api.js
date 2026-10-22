@@ -32,3 +32,15 @@ export function scoreReading({ theme, consultation, cards, answer, hintUsed }) {
     hintUsed,
   })
 }
+
+// 月額プランの購入画面へ移動する
+export async function startCheckout() {
+  const { url } = await post('/api/checkout', {})
+  window.location.href = url
+}
+
+// お支払い・解約の管理画面へ移動する
+export async function openBillingPortal() {
+  const { url } = await post('/api/portal', {})
+  window.location.href = url
+}

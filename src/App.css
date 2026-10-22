@@ -401,3 +401,8 @@ details.panel summary {
 .row {
   align-items: center;
 }
+
+.notice.success {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

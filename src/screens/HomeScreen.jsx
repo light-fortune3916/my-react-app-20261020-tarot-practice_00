@@ -2,8 +2,18 @@ import { SUITS } from '../data/cards.js'
 import { CATEGORIES, DIFFICULTIES } from '../data/themes.js'
 import { PRESETS } from '../lib/settings.js'
 import AccountPanel from '../components/AccountPanel.jsx'
+import PlanPanel from '../components/PlanPanel.jsx'
 
-export default function HomeScreen({ settings, onChange, onDraw, quota, user, onSignedOut, onHistory }) {
+export default function HomeScreen({
+  settings,
+  onChange,
+  onDraw,
+  quota,
+  user,
+  onSignedOut,
+  onHistory,
+  checkoutResult,
+}) {
   const { suits, allowReversed, difficulty, theme } = settings
   const category = CATEGORIES.find((c) => c.id === theme.categoryId)
 
@@ -41,6 +51,7 @@ export default function HomeScreen({ settings, onChange, onDraw, quota, user, on
       </div>
 
       <AccountPanel user={user} onSignedOut={onSignedOut} />
+      <PlanPanel user={user} quota={quota} checkoutResult={checkoutResult} />
 
       <section className="panel">
         <h2>テーマ</h2>
