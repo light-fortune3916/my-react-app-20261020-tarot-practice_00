@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SUITS } from '../data/cards.js'
+import { PAYMENTS_ENABLED } from '../lib/features.js'
 
 function suitLabel(id) {
   return SUITS.find((s) => s.id === id).label
@@ -119,7 +120,10 @@ export default function ReadingScreen({
           {length}文字{length < MIN_ANSWER && `(あと${MIN_ANSWER - length}文字以上)`}
         </p>
         {limitReached ? (
-          <p className="notice">今日の採点回数を使い切りました。日本時間の0時に回数が戻ります。有料会員(月額500円)なら回数無制限で練習できます。</p>
+          <p className="notice">
+            今日の採点回数を使い切りました。日本時間の0時に回数が戻ります。
+            {PAYMENTS_ENABLED && '有料会員(月額500円)なら回数無制限で練習できます。'}
+          </p>
         ) : (
           scoring.status === 'error' && <p className="notice">採点できませんでした。({scoring.reason})</p>
         )}

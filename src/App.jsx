@@ -136,6 +136,8 @@ export default function App() {
   if (screen === 'history') {
     return (
       <HistoryScreen
+        user={user}
+        onSignedOut={refreshQuota}
         onOpen={(item) => {
           setHistoryItem(item)
           setScreen('historyDetail')

@@ -3,6 +3,7 @@ import { CATEGORIES, DIFFICULTIES } from '../data/themes.js'
 import { PRESETS } from '../lib/settings.js'
 import AccountPanel from '../components/AccountPanel.jsx'
 import PlanPanel from '../components/PlanPanel.jsx'
+import { PAYMENTS_ENABLED } from '../lib/features.js'
 
 export default function HomeScreen({
   settings,
@@ -51,7 +52,7 @@ export default function HomeScreen({
       </div>
 
       <AccountPanel user={user} onSignedOut={onSignedOut} />
-      <PlanPanel user={user} quota={quota} checkoutResult={checkoutResult} />
+      {PAYMENTS_ENABLED && <PlanPanel user={user} quota={quota} checkoutResult={checkoutResult} />}
 
       <section className="panel">
         <h2>テーマ</h2>

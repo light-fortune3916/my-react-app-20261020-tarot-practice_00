@@ -7,6 +7,11 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'POST のみ対応しています' })
     return
   }
+  // 有料プランは一旦停止中。再開するときは Vercel の環境変数 PAYMENTS_ENABLED=true を設定する
+  if (process.env.PAYMENTS_ENABLED !== 'true') {
+    res.status(404).json({ error: '現在、有料プランは提供していません' })
+    return
+  }
   try {
     const user = await getUser(req)
     if (!user) {

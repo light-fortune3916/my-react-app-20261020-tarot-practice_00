@@ -50,7 +50,7 @@ export default function AccountPanel({ user, onSignedOut }) {
     <section className="panel account">
       {mode === null && (
         <div className="account-row">
-          <span className="account-note">登録なしで利用中(履歴はこの端末だけに残ります)</span>
+          <span className="account-note">登録なしで利用中(メール登録すると練習の履歴を見られます)</span>
           <span className="row">
             <button type="button" className="secondary small" onClick={() => setMode('register')}>
               メールで登録
@@ -66,7 +66,7 @@ export default function AccountPanel({ user, onSignedOut }) {
         <form onSubmit={submit} className="account-form">
           <p className="account-note">
             {mode === 'register'
-              ? 'メールアドレスを登録すると、別の端末でも履歴を見られます。これまでの履歴も引き継がれます。'
+              ? 'メールアドレスを登録すると、練習の履歴を見られるようになります(別の端末からも見られます)。これまでの練習も引き継がれます。'
               : '登録済みのメールアドレスを入力してください。ログイン用のリンクを送ります。'}
           </p>
           <input
